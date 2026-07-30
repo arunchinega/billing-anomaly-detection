@@ -1,0 +1,5 @@
+# never push data or runtime artifacts
+artifacts/
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
