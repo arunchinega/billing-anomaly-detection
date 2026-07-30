@@ -493,8 +493,11 @@ elif page == "💬 Gloria":
     model = st.sidebar.selectbox("Gloria's model", known, index=0)
 
     if not ok:
-        st.error("Ollama is not running. Install from ollama.com, then in a terminal: "
-                 "`ollama pull llama3.2:3b` — and keep the Ollama app running.")
+        st.info("💁‍♀️ **Gloria runs on-premise only.** She needs a local Ollama "
+                "instance (data-governance by design — no billing data leaves the "
+                "machine). To meet her: clone the repo, install Ollama from "
+                "ollama.com, `ollama pull llama3.2:3b`, and run the app locally. "
+                "All other pages work fully in this hosted version.")
         st.stop()
 
     if "gloria_history" not in st.session_state:
