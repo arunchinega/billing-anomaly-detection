@@ -83,8 +83,8 @@ except Exception:
 
 page = st.sidebar.radio(
     "Navigation",
-    ["🏠 Executive Overview", "🚨 Anomaly Queue", "💬 Gloria",
-     "📊 Analytics", "🧪 Feature Explorer", "📐 Model Stats",
+    ["🏠 Executive Overview", "📊 Model Dashboard", "💬 Gloria",
+     "🚨 Anomaly Queue", "🧪 Feature Explorer", "📐 Model Stats",
      "📈 Detection Performance", "🔮 Forecasting", "🌊 Drift Monitor"],
 )
 st.sidebar.caption(f"Signed in: {USER_EMAIL}")
@@ -102,8 +102,8 @@ st.sidebar.markdown(
     unsafe_allow_html=True)
 
 # ============================================================== Dashboard
-if page == "📊 Analytics":
-    st.title("📊 Analytics & Model Overview")
+if page == "📊 Model Dashboard":
+    st.title("📊 Model Dashboard")
     c1, c2, c3, c4, c5 = st.columns(5)
     c1.metric("Bills processed", f"{overall['total_bills']:,}")
     c2.metric("Flagged", f"{overall['flagged']:,}")
@@ -488,16 +488,31 @@ elif page == "💬 Gloria":
 
     st.title("💬 Gloria")
     ok, available_models = ollama_available()
-    known = [m for m in ["llama3.2:3b", "llama3.1:8b"]
-             if any(m in (am or "") for am in available_models)] or ["llama3.2:3b", "llama3.1:8b"]
-    model = st.sidebar.selectbox("Gloria's model", known, index=0)
+    try:
+        cloud_key = st.secrets.get("GROQ_API_KEY", "")
+    except Exception:
+        cloud_key = ""
 
-    if not ok:
-        st.info("💁‍♀️ **Gloria runs on-premise only.** She needs a local Ollama "
-                "instance (data-governance by design — no billing data leaves the "
-                "machine). To meet her: clone the repo, install Ollama from "
-                "ollama.com, `ollama pull llama3.2:3b`, and run the app locally. "
-                "All other pages work fully in this hosted version.")
+    if ok:
+        known = [m for m in ["llama3.2:3b", "llama3.1:8b"]
+                 if any(m in (am or "") for am in available_models)] or                 ["llama3.2:3b", "llama3.1:8b"]
+        model = st.sidebar.selectbox("Gloria's model", known, index=0)
+        ask_fn = ask_gloria
+        st.caption("🔒 Backend: local Ollama — no data leaves this machine.")
+    elif cloud_key:
+        from pipeline.gloria_cloud import ask_gloria_cloud
+        model = st.sidebar.selectbox(
+            "Gloria's model",
+            ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"], index=0)
+        def ask_fn(q, h, model):
+            return ask_gloria_cloud(q, h, api_key=cloud_key, model=model)
+        st.caption("☁️ Backend: hosted Llama (Groq) — demo mode on synthetic data. "
+                   "On-premise Ollama remains the pattern for client data.")
+    else:
+        st.info("💁‍♀️ **Gloria needs a brain to talk to.** Locally she uses Ollama "
+                "(data-governance by design). In this hosted demo, add a GROQ_API_KEY "
+                "in the app's Secrets to bring her online with hosted Llama. "
+                "All other pages work fully either way.")
         st.stop()
 
     if "gloria_history" not in st.session_state:
@@ -551,7 +566,7 @@ elif page == "💬 Gloria":
             def esc(t):
                 return t.replace("$", "\\$")
             try:
-                for kind, payload in ask_gloria(prompt, llm_history, model=model):
+                for kind, payload in ask_fn(prompt, llm_history, model=model):
                     if kind == "status":
                         placeholder.markdown(f"*{payload}*")
                     elif kind == "delta":

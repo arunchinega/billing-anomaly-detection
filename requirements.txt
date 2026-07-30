@@ -1,7 +1,9 @@
-streamlit
-pandas
-numpy
-plotly
-sqlalchemy
-scipy
-ollama
+# App runtime (Streamlit Cloud friendly)
+streamlit>=1.35
+pandas>=2.0
+numpy>=1.26
+plotly>=5.20
+sqlalchemy>=2.0
+scipy>=1.11
+ollama>=0.3
+openai
