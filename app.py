@@ -83,8 +83,8 @@ except Exception:
 
 page = st.sidebar.radio(
     "Navigation",
-    ["🏠 Executive Overview", "📊 Model Dashboard", "💬 Gloria",
-     "🚨 Anomaly Queue", "🧪 Feature Explorer", "📐 Model Stats",
+    ["🏠 Executive Overview", "🚨 Anomaly Queue", "💬 Gloria",
+     "📊 Analytics", "🧪 Feature Explorer", "📐 Model Stats",
      "📈 Detection Performance", "🔮 Forecasting", "🌊 Drift Monitor"],
 )
 st.sidebar.caption(f"Signed in: {USER_EMAIL}")
@@ -102,8 +102,8 @@ st.sidebar.markdown(
     unsafe_allow_html=True)
 
 # ============================================================== Dashboard
-if page == "📊 Model Dashboard":
-    st.title("📊 Model Dashboard")
+if page == "📊 Analytics":
+    st.title("📊 Analytics & Model Overview")
     c1, c2, c3, c4, c5 = st.columns(5)
     c1.metric("Bills processed", f"{overall['total_bills']:,}")
     c2.metric("Flagged", f"{overall['flagged']:,}")
